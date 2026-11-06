@@ -6,12 +6,14 @@
 >
 > **本仓库只做手机端入口管理，不实现遥控本身**：遥控服务、遥控页面、按键协议都在那个仓库里。两者必须配套使用——只部署本仓库没有电视可连。详见下节「配套仓库与协作关系」。
 
+**[在线使用（H5）](https://hongguo-remote-h5.app.workbuddy.host/?sharecode=G3AWH3OYSU)** · **[下载安卓 APK](https://github.com/jycao2/hongguoTV-remote/releases/latest)** · **[电视端 hongguoTV](https://github.com/jycao2/hongguoTV)** · **[问题反馈](https://github.com/jycao2/hongguoTV-remote/issues)**
+
 项目包含两条产品线：
 
 | 产品线 | 状态 | 入口 |
 | --- | --- | --- |
 | **H5 / PWA**（`web/`） | 主线，持续迭代 | https://hongguo-remote-h5.app.workbuddy.host/?sharecode=G3AWH3OYSU |
-| **Android 原生**（`app/`） | v1.0.9 已交付，转为离线备份 | `红果遥控器-v1.0.9-release.apk` |
+| **Android 原生**（`app/`） | v1.0.9 已交付，转为离线备份 | [下载 arm64 APK](https://github.com/jycao2/hongguoTV-remote/releases/download/v1.0.9/hongguo-remote-1.0.9-arm64-v8a.apk) |
 
 两条线的交互模型一致：扫码 → 命名 → 保存 → 点条目进遥控页。核心体验都是 **WebView / 浏览器直接加载扫码得到的那条局域网网址**——遥控界面与按键协议都由电视端 APK 内置的页面与局域网服务实现，本仓库管理的是「入口地址」，不碰按键逻辑。
 
@@ -129,7 +131,7 @@ hongguo_remote/
 │   └── index.html                        产物：单文件 315 KB，可直接丢到任意静态托管
 ├── keystore/hongguo_remote.jks           签名密钥（已在 .gitignore 中排除）
 ├── keystore.properties                   密钥口令与别名（同样不入库）
-└── 红果遥控器-v1.0.9-release.apk         交付包（arm64）
+└── 红果遥控器-v1.0.9-release.apk         本地交付包（arm64，不入库，分发走 GitHub Releases）
 ```
 
 ## 技术栈
@@ -197,6 +199,8 @@ keyAlias=hongguo_remote
 ```
 
 流程：改 `app/build.gradle.kts` 里的 `versionCode` / `versionName` → 构建 release → 取 `arm64-v8a` 包 → `adb install -r`。
+
+对外分发走 GitHub Releases（APK 不入库）：把 APK 命名成 `hongguo-remote-<版本>-arm64-v8a.apk` 后挂到对应 tag，形如 [v1.0.9](https://github.com/jycao2/hongguoTV-remote/releases/tag/v1.0.9)。
 
 密钥文件必须单独备份：同名应用后续所有更新包都依赖这一个 keystore，丢了就无法覆盖安装。
 
