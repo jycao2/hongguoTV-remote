@@ -259,6 +259,7 @@ dialog button:active{transform:scale(.96)}
 #a2hsBar .tx{flex:1; min-width:0}
 #a2hsBar .tx b{display:block; font-size:14px}
 #a2hsBar .tx span{display:block; font-size:12px; color:var(--muted); margin-top:2px}
+#a2hsBar .tx a{display:inline-block; font-size:11px; color:var(--muted); text-decoration:underline; margin-top:3px; opacity:.8}
 #a2hsAdd{
   background:linear-gradient(135deg,var(--red-2),var(--red));
   color:#fff; border:none; border-radius:10px;
@@ -375,6 +376,7 @@ dialog button:active{transform:scale(.96)}
   <div class="tx">
     <b>添加到桌面</b>
     <span>像 App 一样点开使用，还全屏无地址栏</span>
+    <a id="a2hsNever" href="javascript:void(0)">我已添加，不再提示</a>
   </div>
   <button id="a2hsAdd">立即添加</button>
   <button id="a2hsClose" title="关闭">✕</button>
@@ -706,6 +708,7 @@ document.getElementById("closeScan").addEventListener("click", closeScan);
 /* ===== 添加到桌面引导 ===== */
 var A2HS_DISMISS = "hg_a2hs_dismiss_count";
 var A2HS_INSTALLED = "hg_a2hs_installed";
+var A2HS_OFF = "hg_a2hs_off"; /* 用户明确表示已添加，永久关闭 */
 var a2hsEvent = null; /* Chrome 的原生安装事件 */
 
 var a2hsBar = document.getElementById("a2hsBar");
@@ -713,12 +716,19 @@ var a2hsFab = document.getElementById("a2hsFab");
 var a2hsDlg = document.getElementById("a2hsDialog");
 
 var a2hsStandalone =
-  (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+  (window.matchMedia && (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.matchMedia("(display-mode: fullscreen)").matches ||
+    window.matchMedia("(display-mode: minimal-ui)").matches)) ||
   window.navigator.standalone === true;
 var a2hsIsIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
   (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-function a2hsDone(){ return a2hsStandalone || localStorage.getItem(A2HS_INSTALLED) === "1"; }
+function a2hsDone(){
+  return a2hsStandalone ||
+    localStorage.getItem(A2HS_INSTALLED) === "1" ||
+    localStorage.getItem(A2HS_OFF) === "1";
+}
 function a2hsDismissCount(){ return parseInt(localStorage.getItem(A2HS_DISMISS) || "0", 10) || 0; }
 
 function a2hsRefresh(){
@@ -866,6 +876,10 @@ a2hsFab.addEventListener("click", a2hsOpenGuide);
 document.getElementById("a2hsOk").addEventListener("click", function(){ a2hsDlg.close(); });
 document.getElementById("a2hsClose").addEventListener("click", function(){
   try { localStorage.setItem(A2HS_DISMISS, String(a2hsDismissCount() + 1)); } catch(err){}
+  a2hsRefresh();
+});
+document.getElementById("a2hsNever").addEventListener("click", function(){
+  try { localStorage.setItem(A2HS_OFF, "1"); } catch(err){}
   a2hsRefresh();
 });
 
