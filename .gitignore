@@ -1,0 +1,22 @@
+# ===== 签名密钥（绝不能入库！）=====
+keystore/
+keystore.properties
+*.jks
+*.keystore
+
+# ===== 构建产物 =====
+build/
+app/build/
+.gradle/
+.kotlin/
+local.properties
+*.apk
+*.aab
+
+# ===== IDE =====
+.idea/
+*.iml
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/

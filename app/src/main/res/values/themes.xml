@@ -1,0 +1,4 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Compose 应用使用 NoActionBar 主题，避免与 Compose 主题冲突 -->
+    <style name="Theme.HongguoRemote" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

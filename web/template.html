@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
+<title>红果遥控</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="红果遥控">
+<meta name="theme-color" content="#0b0e13">
+<link rel="apple-touch-icon" href="__ICON180__">
+<link rel="icon" href="__ICON180__">
+<link rel="manifest" href="__MANIFEST__">
+<style>
+:root{
+  --bg:#0b0e13; --card:#161c26; --card2:#1f2735; --line:#263042;
+  --text:#eef2f8; --muted:#8a94a6; --red:#e0453a; --red-2:#ff6b5e; --green:#2fbf71;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(900px 420px at 50% -180px, rgba(224,69,58,.16), transparent 65%),
+    var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom);
+}
+header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 18px; border-bottom:1px solid var(--line);
+  position:sticky; top:0; z-index:5;
+  background:rgba(11,14,19,.72);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+}
+header h1{
+  font-size:18px; font-weight:800; letter-spacing:.5px;
+  display:flex; align-items:center; gap:9px;
+}
+header h1 span{color:var(--red)}
+.logo-mark{
+  width:28px; height:28px; border-radius:9px; flex:none;
+  background:linear-gradient(135deg,var(--red-2),var(--red));
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 14px rgba(224,69,58,.4);
+}
+.logo-mark svg{width:16px;height:16px;fill:#fff}
+.iconbtn{
+  background:var(--card); border:1px solid var(--line); color:var(--text);
+  border-radius:12px; padding:9px 15px; font-size:14px; cursor:pointer;
+  display:flex; align-items:center; gap:6px;
+  transition:transform .12s ease, border-color .2s ease, background .2s ease;
+}
+.iconbtn:active{transform:scale(.94); border-color:rgba(224,69,58,.55)}
+.iconbtn svg{width:18px;height:18px;fill:currentColor}
+main{padding:16px; max-width:640px; margin:0 auto}
+/* 空态 */
+.empty{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding-top:20vh; text-align:center; gap:20px;
+}
+.scan-ring{
+  position:relative;
+  width:96px; height:96px; border-radius:26px; background:var(--card);
+  border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+  box-shadow:var(--shadow);
+}
+.scan-ring::after{
+  content:""; position:absolute; top:-1px; left:-1px; right:-1px; bottom:-1px; border-radius:26px;
+  border:2px solid rgba(224,69,58,.55);
+  animation:pulse 2.2s ease-out infinite;
+}
+@keyframes pulse{
+  0%{transform:scale(1); opacity:.8}
+  70%{transform:scale(1.28); opacity:0}
+  100%{transform:scale(1.28); opacity:0}
+}
+.scan-ring svg{width:52px;height:52px;fill:var(--red)}
+#bigScan{
+  background:linear-gradient(135deg,var(--red-2),var(--red));
+  color:#fff; border:none; border-radius:14px;
+  padding:14px 46px; font-size:17px; font-weight:700; letter-spacing:1px; cursor:pointer;
+  box-shadow:0 8px 24px rgba(224,69,58,.35);
+  transition:transform .12s ease, box-shadow .2s ease;
+}
+#bigScan:active{transform:scale(.95); box-shadow:0 4px 14px rgba(224,69,58,.3)}
+.empty p{color:var(--muted); font-size:14px}
+/* 列表 */
+#remoteList{list-style:none; display:flex; flex-direction:column; gap:12px}
+.remote{
+  background:linear-gradient(160deg,var(--card),#121824);
+  border:1px solid var(--line); border-radius:16px;
+  padding:16px; display:flex; align-items:center; gap:14px; cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,0,0,.25);
+  transition:transform .12s ease, border-color .2s ease;
+  animation:fadeUp .35s ease both;
+}
+.remote:nth-child(2){animation-delay:.05s}
+.remote:nth-child(3){animation-delay:.1s}
+.remote:nth-child(4){animation-delay:.15s}
+.remote:nth-child(5){animation-delay:.2s}
+@keyframes fadeUp{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
+.remote:active{transform:scale(.98); border-color:rgba(224,69,58,.5)}
+.remote .tv{
+  width:46px; height:46px; border-radius:13px;
+  background:linear-gradient(135deg,var(--card2),#242e40);
+  border:1px solid rgba(224,69,58,.22);
+  display:flex; align-items:center; justify-content:center; flex:none;
+}
+.remote .tv svg{width:24px;height:24px;fill:var(--red)}
+.remote .info{flex:1; min-width:0}
+.remote .name{font-size:16px; font-weight:600}
+.remote .url{
+  font-size:12px; color:var(--muted); margin-top:3px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.remote .go{
+  color:var(--red-2); font-size:13px; font-weight:600; flex:none;
+  background:rgba(224,69,58,.12); border:1px solid rgba(224,69,58,.28);
+  padding:6px 11px; border-radius:9px;
+}
+.remote .del{
+  background:none; border:none; color:var(--muted); font-size:20px;
+  cursor:pointer; padding:4px 6px; flex:none; border-radius:8px;
+  transition:color .2s ease, background .2s ease;
+}
+.remote .del:active{color:var(--red-2); background:rgba(224,69,58,.15)}
+/* 扫码页 */
+#scanView{
+  position:fixed; top:0; left:0; right:0; bottom:0; background:#000; z-index:50;
+  display:flex; flex-direction:column; align-items:center;
+}
+#scanView[hidden]{display:none}
+#video{
+  position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;
+}
+.mask{
+  position:absolute; top:0; left:0; right:0; bottom:0;
+  background:rgba(0,0,0,.55);
+  -webkit-mask:linear-gradient(#fff,#fff); pointer-events:none;
+}
+.frame{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-58%);
+  width:72vw; max-width:300px; aspect-ratio:1; pointer-events:none;
+}
+.frame i{
+  position:absolute; width:28px; height:28px; border:3px solid #fff; border-radius:2px;
+}
+.frame i:nth-child(1){top:0;left:0;border-right:none;border-bottom:none;border-radius:8px 0 0 0}
+.frame i:nth-child(2){top:0;right:0;border-left:none;border-bottom:none;border-radius:0 8px 0 0}
+.frame i:nth-child(3){bottom:0;left:0;border-right:none;border-top:none;border-radius:0 0 0 8px}
+.frame i:nth-child(4){bottom:0;right:0;border-left:none;border-top:none;border-radius:0 0 8px 0}
+.line{
+  position:absolute; left:8%; right:8%; height:2px;
+  background:var(--green); box-shadow:0 0 8px var(--green);
+  animation:scan 1.8s ease-in-out infinite alternate;
+}
+@keyframes scan{from{top:12%}to{top:86%}}
+#scanTipWrap{
+  position:absolute; bottom:22vh; left:0; right:0; z-index:2; text-align:center;
+}
+#scanTip{color:#fff; font-size:14px}
+#photoScan{
+  position:absolute; bottom:15vh; left:50%; transform:translateX(-50%); z-index:2;
+  display:inline-block; text-align:center;
+  background:rgba(255,255,255,.14); color:#fff; border:1px solid rgba(255,255,255,.25);
+  border-radius:22px; padding:10px 18px; font-size:14px; cursor:pointer;
+  white-space:nowrap;
+}
+#photoScan[hidden]{display:none}
+#scanWifi{margin-top:8px; color:rgba(255,255,255,.65); font-size:12px}
+#copyLink{
+  position:absolute; bottom:10.5vh; left:50%; transform:translateX(-50%); z-index:2;
+  background:rgba(224,69,58,.9); color:#fff; border:none;
+  border-radius:22px; padding:10px 18px; font-size:14px; font-weight:600; cursor:pointer;
+  white-space:nowrap;
+}
+#copyLink[hidden]{display:none}
+/* 文件选择框不能 display:none——夸克等老内核会静默忽略 click()，改离屏可见 */
+#filePick{
+  position:fixed; top:-300px; left:-300px; width:2px; height:2px;
+  opacity:0; border:0; padding:0;
+}
+#closeScan{
+  position:absolute; top:calc(14px + env(safe-area-inset-top)); right:16px; z-index:2;
+  background:rgba(255,255,255,.14); color:#fff; border:none; border-radius:20px;
+  padding:8px 16px; font-size:14px; cursor:pointer;
+}
+.okdot{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-58%);
+  width:20px; height:20px; border-radius:50%; background:var(--green);
+  box-shadow:0 0 0 6px rgba(47,191,113,.35); display:none; z-index:2;
+}
+/* 通用弹窗（命名 / 删除 / 教程）：强制视口居中，兼容不支持 inset 的老内核 */
+dialog{
+  position:fixed; top:50%; left:50%; margin:0;
+  transform:translate(-50%,-50%);
+  border:1px solid var(--line); border-radius:18px;
+  background:linear-gradient(165deg,var(--card),#121824); color:var(--text);
+  padding:22px 20px; width:min(86vw,340px);
+  box-shadow:var(--shadow);
+  animation:dlgUp .25s ease;
+}
+@keyframes dlgUp{from{opacity:0; transform:translate(-50%,-46%)}to{opacity:1; transform:translate(-50%,-50%)}}
+dialog::backdrop{background:rgba(4,6,10,.65); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px)}
+dialog h3{font-size:17px; margin-bottom:14px}
+dialog input{
+  width:100%; background:var(--card2); border:1px solid var(--line); color:var(--text);
+  border-radius:11px; padding:12px; font-size:15px; outline:none;
+  transition:border-color .2s ease;
+}
+dialog input:focus{border-color:var(--red)}
+dialog .row{display:flex; gap:10px; margin-top:18px}
+dialog button{
+  flex:1; padding:11px; border-radius:11px; border:none; font-size:15px; cursor:pointer;
+  transition:transform .12s ease, filter .2s ease;
+}
+dialog button:active{transform:scale(.96)}
+#cancelName{background:var(--card2); color:var(--muted)}
+#saveName{background:linear-gradient(135deg,var(--red-2),var(--red)); color:#fff; font-weight:700; box-shadow:0 4px 14px rgba(224,69,58,.3)}
+/* 删除确认弹窗 */
+.dlg-msg{color:var(--muted); font-size:14px; line-height:1.6}
+#cancelDel{background:var(--card2); color:var(--muted)}
+#confirmDel{background:linear-gradient(135deg,var(--red-2),var(--red)); color:#fff; font-weight:700; box-shadow:0 4px 14px rgba(224,69,58,.3)}
+/* 夸克浏览器提示卡（云加速会代理局域网请求导致超时） */
+#quarkTip{
+  background:linear-gradient(165deg,var(--card),#121824);
+  border:1px solid rgba(224,69,58,.35); border-radius:14px;
+  padding:14px; margin-bottom:14px; font-size:13px; line-height:1.7; color:var(--text);
+}
+#quarkTip b{color:var(--red-2)}
+#quarkTip[hidden]{display:none}
+#quarkOk{
+  margin-top:10px; width:100%; padding:9px; border:none; border-radius:9px;
+  background:var(--card2); color:var(--muted); font-size:13px; cursor:pointer;
+}
+.tip{
+  color:var(--muted); font-size:12px; margin-top:14px; text-align:center;
+}
+/* ===== 添加到桌面引导 ===== */
+#a2hsBar{
+  position:fixed; left:16px; right:16px; bottom:calc(18px + env(safe-area-inset-bottom));
+  z-index:30; background:linear-gradient(165deg,var(--card),#121824);
+  border:1px solid rgba(224,69,58,.35);
+  border-radius:16px; padding:14px; display:flex; align-items:center; gap:12px;
+  box-shadow:0 12px 34px rgba(0,0,0,.5);
+  animation:a2hsUp .35s ease;
+}
+#a2hsBar[hidden]{display:none}
+@keyframes a2hsUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+#a2hsBar .ic{
+  width:40px; height:40px; border-radius:11px; flex:none;
+  background:linear-gradient(135deg,var(--red-2),var(--red));
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 14px rgba(224,69,58,.4);
+}
+#a2hsBar .ic svg{width:22px;height:22px;fill:#fff}
+#a2hsBar .tx{flex:1; min-width:0}
+#a2hsBar .tx b{display:block; font-size:14px}
+#a2hsBar .tx span{display:block; font-size:12px; color:var(--muted); margin-top:2px}
+#a2hsAdd{
+  background:linear-gradient(135deg,var(--red-2),var(--red));
+  color:#fff; border:none; border-radius:10px;
+  padding:10px 15px; font-size:13px; font-weight:700; cursor:pointer; flex:none;
+  box-shadow:0 4px 14px rgba(224,69,58,.35);
+  transition:transform .12s ease;
+}
+#a2hsAdd:active{transform:scale(.94)}
+#a2hsClose{
+  background:none; border:none; color:var(--muted); font-size:18px;
+  cursor:pointer; padding:2px 4px; flex:none;
+}
+#a2hsFab{
+  position:fixed; right:14px; bottom:calc(18px + env(safe-area-inset-bottom));
+  z-index:29; background:linear-gradient(165deg,var(--card),#121824);
+  border:1px solid rgba(224,69,58,.4); color:var(--text);
+  border-radius:22px; padding:10px 16px; font-size:13px; font-weight:600; cursor:pointer;
+  display:flex; align-items:center; gap:6px;
+  box-shadow:0 8px 24px rgba(0,0,0,.45);
+  animation:a2hsUp .35s ease;
+  transition:transform .12s ease;
+}
+#a2hsFab:active{transform:scale(.94)}
+#a2hsFab svg{width:16px;height:16px;fill:var(--red-2)}
+#a2hsFab[hidden]{display:none}
+/* 引导弹窗 */
+#a2hsDialog h3{margin-bottom:4px}
+#a2hsDialog .sub{color:var(--muted); font-size:13px; margin-bottom:16px}
+.a2hs-step{display:flex; gap:12px; align-items:flex-start; margin-bottom:14px}
+.a2hs-step .n{
+  width:22px; height:22px; border-radius:50%; background:var(--red); color:#fff;
+  font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;
+  flex:none; margin-top:1px;
+}
+.a2hs-step p{font-size:14px; line-height:1.5}
+.a2hs-step p em{font-style:normal; color:var(--red); font-weight:600}
+.a2hs-key{
+  display:inline-flex; align-items:center; gap:5px; vertical-align:-3px;
+  background:var(--card2); border:1px solid var(--line); border-radius:6px;
+  padding:2px 7px; margin:0 2px;
+}
+.a2hs-key svg{width:14px;height:14px;fill:currentColor}
+#a2hsOk{
+  width:100%; padding:12px; border:none; border-radius:10px;
+  background:var(--card2); color:var(--muted); font-size:15px; cursor:pointer; margin-top:4px;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>
+    <span class="logo-mark"><svg viewBox="0 0 24 24"><path d="M9.5 7.5 16 12l-6.5 4.5v-9z"/></svg></span>
+    红果<span>遥控</span>
+  </h1>
+  <button class="iconbtn" id="scanBtn" title="扫一扫添加遥控器">
+    <svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm14 0h2v6h-6v-2h4v-4zM8 8h8v8H8V8z"/></svg>
+    扫一扫
+  </button>
+</header>
+
+<main>
+  <div id="quarkTip" hidden>
+    检测到你在使用 <b>夸克浏览器</b>：进入遥控界面如提示「请求超时」，是夸克的云加速代理了局域网请求，<b>多刷新几次</b>即可进入；也可在夸克「设置-通用」中关闭<b>云加速</b>。日常建议使用系统浏览器，体验最佳。
+    <button id="quarkOk">知道了</button>
+  </div>
+  <div id="empty" class="empty" style="display:none">
+    <div class="scan-ring">
+      <svg viewBox="0 0 24 24" fill-rule="evenodd"><path d="M21 5H3a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h7l-2 3h2l1.5-2.25L13 21h2l-2-3h8a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1zm-1 11H4V7h16v9zM10.2 9.3 15 12l-4.8 2.7z"/></svg>
+    </div>
+    <button id="bigScan">扫一扫</button>
+    <p>扫描红果TV手机遥控二维码导入遥控界面<br><span style="color:var(--red-2)">手机需与电视连接同一 WiFi</span></p>
+  </div>
+  <ul id="remoteList"></ul>
+</main>
+
+<div id="scanView" hidden>
+  <video id="video" playsinline webkit-playsinline muted autoplay></video>
+  <canvas id="canvas" hidden></canvas>
+  <div class="frame"><i></i><i></i><i></i><i></i><div class="line"></div></div>
+  <div class="okdot" id="okdot"></div>
+  <div id="scanTipWrap">
+    <p id="scanTip">将二维码放入取景框内</p>
+    <p id="scanWifi">提醒：手机需与电视连接同一 WiFi 才能遥控</p>
+  </div>
+  <label id="photoScan" for="filePick" hidden>📷 摄像头不可用？点此拍照识别</label>
+  <button id="copyLink" hidden>复制链接，用系统浏览器打开</button>
+  <input type="file" id="filePick" accept="image/*">
+  <button id="closeScan">关闭</button>
+</div>
+
+<dialog id="nameDialog">
+  <h3>命名遥控器</h3>
+  <input id="nameInput" maxlength="20" placeholder="例如：客厅电视">
+  <div class="row">
+    <button id="cancelName">取消</button>
+    <button id="saveName">完成</button>
+  </div>
+</dialog>
+
+<dialog id="delDialog">
+  <h3>删除遥控器</h3>
+  <p class="dlg-msg" id="delMsg"></p>
+  <div class="row">
+    <button id="cancelDel">取消</button>
+    <button id="confirmDel">删除</button>
+  </div>
+</dialog>
+
+<!-- 添加到桌面：底部引导条 -->
+<div id="a2hsBar" hidden>
+  <div class="ic">
+    <svg viewBox="0 0 24 24"><path d="M12 2l4 4h-3v7h-2V6H8l4-4zM5 12h5v2H7v6h10v-6h-3v-2h5v10H5V12z"/></svg>
+  </div>
+  <div class="tx">
+    <b>添加到桌面</b>
+    <span>像 App 一样点开使用，还全屏无地址栏</span>
+  </div>
+  <button id="a2hsAdd">立即添加</button>
+  <button id="a2hsClose" title="关闭">✕</button>
+</div>
+
+<!-- 添加到桌面：关闭引导条后的悬浮小按钮 -->
+<button id="a2hsFab" hidden>
+  <svg viewBox="0 0 24 24"><path d="M12 2l4 4h-3v7h-2V6H8l4-4zM5 12h5v2H7v6h10v-6h-3v-2h5v10H5V12z"/></svg>
+  添加到桌面
+</button>
+
+<!-- 添加到桌面：分步教程 -->
+<dialog id="a2hsDialog">
+  <h3>添加到主屏幕</h3>
+  <p class="sub" id="a2hsSub">三步操作，之后从桌面图标直接打开</p>
+  <div id="a2hsSteps"></div>
+  <button id="a2hsOk">我知道了</button>
+</dialog>
+
+<script>__JSQR__</script>
+<script>
+"use strict";
+var KEY = "hg_remotes_v1";
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||"[]"); }catch(e){ return []; } }
+function save(list){ localStorage.setItem(KEY, JSON.stringify(list)); }
+
+var listEl = document.getElementById("remoteList");
+var emptyEl = document.getElementById("empty");
+var pendingDel = null;
+
+function esc(s){ var d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+
+function render(){
+  var list = load();
+  listEl.innerHTML = "";
+  emptyEl.style.display = list.length ? "none" : "flex";
+  list.forEach(function(r, i){
+    var li = document.createElement("li");
+    li.className = "remote";
+    li.innerHTML =
+      '<div class="tv"><svg viewBox="0 0 24 24"><path d="M21 5H3a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h7l-2 3h2l1.5-2.25L13 21h2l-2-3h8a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1zm-1 11H4V7h16v9z"/></svg></div>' +
+      '<div class="info"><div class="name">'+esc(r.name)+'</div><div class="url">'+esc(r.url)+'</div></div>' +
+      '<span class="go">进入 ›</span>' +
+      '<button class="del" data-i="'+i+'" title="删除">✕</button>';
+    li.querySelector(".del").addEventListener("click", function(ev){
+      ev.stopPropagation();
+      var dlg = document.getElementById("delDialog");
+      document.getElementById("delMsg").textContent =
+        '确定要删除「' + r.name + '」吗？删除后需重新扫码导入。';
+      if (typeof dlg.showModal === "function") {
+        pendingDel = i;
+        dlg.showModal();
+      } else {
+        // 极老内核降级：原生 confirm
+        if (confirm('确定要删除「'+r.name+'」吗？')) {
+          var l = load(); l.splice(i,1); save(l); render();
+        }
+      }
+    });
+    li.addEventListener("click", function(){ location.href = r.url; });
+    listEl.appendChild(li);
+  });
+}
+
+/* ===== 扫码 ===== */
+var scanView = document.getElementById("scanView");
+var video = document.getElementById("video");
+var canvas = document.getElementById("canvas");
+var tipEl = document.getElementById("scanTip");
+var okdot = document.getElementById("okdot");
+var stream = null, scanning = false, rafId = 0, found = null;
+
+function dbg(msg){ /* 诊断已下线，保留空实现 */ }
+
+function attachStream(s){
+  if ("srcObject" in video && video.srcObject !== undefined) {
+    video.srcObject = s;
+  } else {
+    video.src = URL.createObjectURL(s); /* 老内核降级 */
+  }
+}
+
+/* 统一的摄像头取流：modern API / 老式回调 API / 超时兜底
+   夸克等内置浏览器存在 getUserMedia 永不回调的假实现，必须加超时 */
+function getCameraStream(constraints, preferLegacy){
+  return new Promise(function(resolve, reject){
+    var settled = false;
+    function ok(s){ if (!settled) { settled = true; resolve(s); } }
+    function fail(e){ if (!settled) { settled = true; reject(e); } }
+    var modern = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+    var legacy = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    var useLegacy = preferLegacy && legacy;
+    if (useLegacy) {
+      legacy.call(navigator, constraints, ok, fail);
+    } else if (modern) {
+      modern.call(navigator.mediaDevices, constraints).then(ok, fail);
+    } else if (legacy) {
+      legacy.call(navigator, constraints, ok, fail);
+    } else {
+      fail({ name: "NotSupportedError", message: "浏览器不支持摄像头调用" });
+    }
+    setTimeout(function(){
+      if (!settled) fail({ name: "TimeoutError", message: "权限请求超时，浏览器无响应" });
+    }, 5000);
+  });
+}
+
+function openScan(){
+  var hasModern = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+  var hasLegacy = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+  if (!hasModern && !hasLegacy) {
+    alert(location.protocol === "https:"
+      ? "当前浏览器不支持摄像头调用"
+      : "摄像头需要在 HTTPS 环境下才能使用，请通过 https 链接打开本页");
+    return;
+  }
+  scanView.hidden = false;
+  found = null; okdot.style.display = "none";
+  tipEl.textContent = "将二维码放入取景框内";
+  photoBtn.hidden = false; /* 随时可改走拍照识别 */
+  dbg("请求摄像头权限…");
+  var constraints = {
+    video: { facingMode: { ideal: "environment" }, width:{ideal:1280}, height:{ideal:720} },
+    audio: false
+  };
+  getCameraStream(constraints, false).catch(function(err){
+    dbg("首次失败(" + err.name + ")，切换兼容模式重试…");
+    return getCameraStream({ video: true, audio: false }, true);
+  }).then(function(s){
+    stream = s;
+    dbg("已获取视频流 tracks=" + s.getVideoTracks().length);
+    attachStream(s);
+    video.onerror = function(){ dbg("video 错误: " + (video.error && video.error.message)); };
+    video.onloadedmetadata = function(){
+      dbg("metadata " + video.videoWidth + "x" + video.videoHeight + " ready=" + video.readyState);
+    };
+    return video.play();
+  }).then(function(){
+    dbg("play() 成功");
+    scanning = true;
+    rafId = requestAnimationFrame(tick);
+  }).catch(function(err){
+    dbg("失败: " + err.name + " " + err.message);
+    tipEl.textContent = "此浏览器限制了摄像头，可拍照识别";
+    document.getElementById("copyLink").hidden = false;
+  });
+}
+
+/* 复制本页链接：clipboard API 优先，老内核 execCommand 兜底 */
+document.getElementById("copyLink").addEventListener("click", function(){
+  var url = location.href;
+  function fallbackCopy(){
+    var ta = document.createElement("textarea");
+    ta.value = url;
+    ta.style.position = "fixed"; ta.style.top = "-300px";
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch(e){}
+    document.body.removeChild(ta);
+    alert(ok ? "链接已复制！\n请退出后用「系统浏览器 / Chrome」粘贴打开，即可正常扫码"
+             : "复制失败，请手动复制地址栏的网址");
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(function(){
+      alert("链接已复制！\n请退出后用「系统浏览器 / Chrome」粘贴打开，即可正常扫码");
+    }, fallbackCopy);
+  } else {
+    fallbackCopy();
+  }
+});
+
+/* ===== 拍照识别兜底（系统相机，任何浏览器可用） ===== */
+var photoBtn = document.getElementById("photoScan");
+var filePick = document.getElementById("filePick");
+
+/* label[for] 原生转发触发文件选择，不依赖 JS click()（夸克等老内核更可靠） */
+photoBtn.addEventListener("click", function(){ dbg("已触发文件选择器，等待选择照片…"); });
+
+filePick.addEventListener("change", function(){
+  var f = filePick.files && filePick.files[0];
+  filePick.value = "";
+  if (!f) return;
+  stopScanLoop();
+  tipEl.textContent = "识别中…";
+  var img = new Image();
+  img.onload = function(){
+    var scale = Math.min(1, 1280 / img.naturalWidth);
+    var w = Math.round(img.naturalWidth * scale), h = Math.round(img.naturalHeight * scale);
+    canvas.width = w; canvas.height = h;
+    var ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0, w, h);
+    var data = ctx.getImageData(0, 0, w, h);
+    var code = jsQR(data.data, w, h, { inversionAttempts: "attemptBoth" });
+    URL.revokeObjectURL(img.src);
+    if (code && code.data) {
+      photoBtn.hidden = true;
+      onFound(code.data);
+    } else {
+      tipEl.textContent = "未识别到二维码，请对准后重拍";
+    }
+  };
+  img.onerror = function(){ tipEl.textContent = "图片读取失败，请重试"; };
+  img.src = URL.createObjectURL(f);
+});
+
+function tick(){
+  if (!scanning) return;
+  if (!video.videoWidth) {
+    tick._n = (tick._n || 0) + 1;
+    if (tick._n === 90) dbg("警告: 视频流在播放但无画面帧 videoWidth=0");
+  } else { tick._n = 0; }
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    var w = 480;
+    var h = Math.round(w * video.videoHeight / video.videoWidth) || 360;
+    canvas.width = w; canvas.height = h;
+    var ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(video, 0, 0, w, h);
+    var img = ctx.getImageData(0, 0, w, h);
+    var code = jsQR(img.data, w, h, { inversionAttempts: "dontInvert" });
+    if (code && code.data && !found) {
+      found = code.data;
+      onFound(found);
+    }
+  }
+  rafId = requestAnimationFrame(tick);
+}
+
+function closeScan(){
+  scanning = false;
+  cancelAnimationFrame(rafId);
+  if (stream) { stream.getTracks().forEach(function(t){ t.stop(); }); stream = null; }
+  video.srcObject = null;
+  photoBtn.hidden = true;
+  document.getElementById("copyLink").hidden = true;
+  scanView.hidden = true;
+}
+
+/* 解析二维码内容：红果TV 二维码是完整的局域网网址 */
+function parseQr(text){
+  var t = (text||"").trim();
+  if (/^https?:\/\//i.test(t)) return { url: t };
+  // 容错：host:port/path 形式补协议
+  var m = t.match(/^[0-9.]+(:\d+)(\/\S*)?$/);
+  if (m) return { url: "http://" + t };
+  return null;
+}
+
+var pendingUrl = null;
+function onFound(text){
+  var parsed = parseQr(text);
+  if (!parsed) {
+    tipEl.textContent = "不是有效的红果TV遥控二维码";
+    found = null;
+    return;
+  }
+  okdot.style.display = "block";
+  tipEl.textContent = "识别成功";
+  stopScanLoop();
+  pendingUrl = parsed.url;
+  var list = load();
+  var input = document.getElementById("nameInput");
+  input.value = "遥控器 " + (list.length + 1);
+  var dlg = document.getElementById("nameDialog");
+  if (typeof dlg.showModal === "function") {
+    dlg.showModal();
+  } else {
+    // 老内核降级：prompt
+    var name = prompt("命名遥控器：", input.value);
+    if (name) finishAdd(name); 
+    closeScan();
+  }
+}
+
+function stopScanLoop(){
+  scanning = false;
+  cancelAnimationFrame(rafId);
+  if (stream) { stream.getTracks().forEach(function(t){ t.stop(); }); stream = null; }
+}
+
+/* 扫码成功弹出命名弹窗后暂停识别；取消命名时恢复继续扫 */
+function resumeScan(){
+  found = null; okdot.style.display = "none";
+  tipEl.textContent = "将二维码放入取景框内";
+  if (stream) { scanning = true; rafId = requestAnimationFrame(tick); }
+  else { photoBtn.hidden = false; } /* 拍照识别模式 */
+}
+
+function finishAdd(name){
+  if (!pendingUrl) return;
+  var list = load();
+  // 同地址去重：已存在则更新名称
+  var exist = list.findIndex(function(r){ return r.url === pendingUrl; });
+  var item = { name: name || ("遥控器 " + (list.length + 1)), url: pendingUrl, ts: Date.now() };
+  if (exist >= 0) list[exist] = item; else list.push(item);
+  save(list);
+  pendingUrl = null;
+  render();
+  closeScan(); /* 先关浮层再跳转，避免 bfcache 把扫码状态带进快照 */
+  location.href = item.url;
+}
+
+document.getElementById("saveName").addEventListener("click", function(){
+  var name = document.getElementById("nameInput").value.trim();
+  document.getElementById("nameDialog").close();
+  finishAdd(name);
+});
+document.getElementById("cancelName").addEventListener("click", function(){
+  document.getElementById("nameDialog").close();
+  pendingUrl = null;
+  resumeScan();
+});
+/* 删除确认弹窗 */
+document.getElementById("cancelDel").addEventListener("click", function(){
+  document.getElementById("delDialog").close();
+  pendingDel = null;
+});
+document.getElementById("confirmDel").addEventListener("click", function(){
+  document.getElementById("delDialog").close();
+  if (pendingDel !== null) {
+    var l = load(); l.splice(pendingDel, 1); save(l); render();
+    pendingDel = null;
+  }
+});
+document.getElementById("scanBtn").addEventListener("click", openScan);
+document.getElementById("bigScan").addEventListener("click", openScan);
+document.getElementById("closeScan").addEventListener("click", closeScan);
+
+/* ===== 添加到桌面引导 ===== */
+var A2HS_DISMISS = "hg_a2hs_dismiss_count";
+var A2HS_INSTALLED = "hg_a2hs_installed";
+var a2hsEvent = null; /* Chrome 的原生安装事件 */
+
+var a2hsBar = document.getElementById("a2hsBar");
+var a2hsFab = document.getElementById("a2hsFab");
+var a2hsDlg = document.getElementById("a2hsDialog");
+
+var a2hsStandalone =
+  (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+  window.navigator.standalone === true;
+var a2hsIsIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+function a2hsDone(){ return a2hsStandalone || localStorage.getItem(A2HS_INSTALLED) === "1"; }
+function a2hsDismissCount(){ return parseInt(localStorage.getItem(A2HS_DISMISS) || "0", 10) || 0; }
+
+function a2hsRefresh(){
+  if (a2hsDone()) { a2hsBar.hidden = true; a2hsFab.hidden = true; return; }
+  if (a2hsDismissCount() < 2) { a2hsBar.hidden = false; a2hsFab.hidden = true; }
+  else { a2hsBar.hidden = true; a2hsFab.hidden = false; }
+}
+
+/* 安卓 Chrome：拦截原生安装事件，按钮可直接拉起系统安装框 */
+window.addEventListener("beforeinstallprompt", function(e){
+  e.preventDefault();
+  a2hsEvent = e;
+});
+window.addEventListener("appinstalled", function(){
+  try { localStorage.setItem(A2HS_INSTALLED, "1"); } catch(err){}
+  a2hsEvent = null;
+  a2hsRefresh();
+});
+
+/* 分步教程内容 */
+var SVG_SHARE = '<span class="a2hs-key"><svg viewBox="0 0 24 24"><path d="M12 2l4 4h-3v9h-2V6H8l4-4zM5 11h4v2H7v9h10v-9h-2v-2h4v13H5V11z"/></svg>分享</span>';
+var SVG_MORE = '<span class="a2hs-key"><svg viewBox="0 0 24 24"><path d="M12 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 7a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 7a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/></svg>⋮ 更多</span>';
+var SVG_MENU3 = '<span class="a2hs-key"><svg viewBox="0 0 24 24"><path d="M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z"/></svg>☰ 菜单</span>';
+var SVG_DOTS_H = '<span class="a2hs-key"><svg viewBox="0 0 24 24"><path d="M5 10.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm7 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm7 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/></svg>⋯ 更多</span>';
+
+function a2hsStepsHTML(){
+  var ua = navigator.userAgent;
+  function build(subText, arr){
+    document.getElementById("a2hsSub").textContent = subText;
+    return arr.map(function(s, i){
+      return '<div class="a2hs-step"><span class="n">' + (i + 1) + '</span><p>' + s + '</p></div>';
+    }).join("");
+  }
+  /* iOS */
+  if (a2hsIsIOS) {
+    if (/MicroMessenger/i.test(ua)) {
+      return build("微信内无法直接添加到桌面，需先转到 Safari", [
+        '点右上角 ' + SVG_MORE + '，选 <em>「在浏览器打开」</em>',
+        '在 Safari 中点底部中间的 ' + SVG_SHARE,
+        '选 <em>「添加到主屏幕」</em> 并确认'
+      ]);
+    }
+    return build("在 Safari 中三步添加，之后从桌面图标直接打开", [
+      '点击 Safari 底部中间的 ' + SVG_SHARE + ' 按钮',
+      '在弹出的菜单中向下滑，点选 <em>「添加到主屏幕」</em>',
+      '点右上角 <em>「添加」</em> 完成，桌面会出现红果遥控图标'
+    ]);
+  }
+  /* 微信内置浏览器（安卓） */
+  if (/MicroMessenger/i.test(ua)) {
+    return build("微信内无法直接添加到桌面，需先转到系统浏览器", [
+      '点右上角 ' + SVG_MORE + '，选 <em>「在浏览器打开」</em>',
+      '在打开的浏览器中点右上角 ' + SVG_MORE + ' 或底部 ' + SVG_MENU3,
+      '选 <em>「添加到主屏幕 / 发送到桌面」</em>'
+    ]);
+  }
+  /* 夸克 */
+  if (/Quark/i.test(ua)) {
+    return build("夸克浏览器", [
+      '点击右下角的 ' + SVG_MENU3,
+      '找到 <em>「添加到桌面」</em>（若没有，先「收藏网址」再长按收藏选「发送至桌面」）',
+      '回桌面查看红果遥控图标'
+    ]);
+  }
+  /* UC */
+  if (/UCBrowser|UCWEB/i.test(ua)) {
+    return build("UC 浏览器", [
+      '点击底部中间的 ' + SVG_MENU3,
+      '找 <em>「收藏网址」</em>，添加时勾选 <em>「手机桌面」</em>（或直接找「添加到桌面」）',
+      '回桌面查看红果遥控图标'
+    ]);
+  }
+  /* QQ 浏览器 */
+  if (/MQQBrowser/i.test(ua)) {
+    return build("QQ 浏览器", [
+      '点击底部中间的 ' + SVG_MENU3,
+      '找到 <em>「添加到桌面」</em>（或「收藏网址」→「发送至桌面」）',
+      '确认添加，回桌面查看红果遥控图标'
+    ]);
+  }
+  /* 小米浏览器 */
+  if (/MiuiBrowser/i.test(ua)) {
+    return build("小米浏览器", [
+      '点击底部的 ' + SVG_MENU3,
+      '找到 <em>「发送到桌面」</em> 或 <em>「添加到桌面」</em>',
+      '确认添加，回桌面查看红果遥控图标'
+    ]);
+  }
+  /* OPPO */
+  if (/HeyTapBrowser/i.test(ua)) {
+    return build("OPPO 浏览器", [
+      '点击底部的 ' + SVG_MENU3,
+      '找到 <em>「添加到桌面」</em>',
+      '确认添加，回桌面查看红果遥控图标'
+    ]);
+  }
+  /* vivo */
+  if (/VivoBrowser/i.test(ua)) {
+    return build("vivo 浏览器", [
+      '点击底部的 ' + SVG_MENU3,
+      '找到 <em>「添加到桌面」</em>',
+      '确认添加，回桌面查看红果遥控图标'
+    ]);
+  }
+  /* 华为 */
+  if (/HuaweiBrowser|HUAWEIBROWSER/i.test(ua)) {
+    return build("华为浏览器", [
+      '点击右下角的 ' + SVG_MORE + ' 菜单',
+      '找到 <em>「添加到主屏幕」</em>',
+      '确认添加，回桌面查看红果遥控图标'
+    ]);
+  }
+  /* Edge */
+  if (/Edg\//i.test(ua)) {
+    return build("Edge 浏览器", [
+      '点击底部中间的 ' + SVG_DOTS_H,
+      '找到 <em>「添加到手机」</em>',
+      '确认添加，回桌面查看红果遥控图标'
+    ]);
+  }
+  /* 通用（Chrome / 系统浏览器等） */
+  return build("三步操作，之后从桌面图标直接打开", [
+    '点击浏览器右上角的 ' + SVG_MORE + ' 菜单',
+    '找到 <em>「添加到主屏幕」</em> 或 <em>「安装应用」</em>',
+    '点 <em>「添加 / 安装」</em> 确认，桌面会出现红果遥控图标'
+  ]);
+}
+
+function a2hsOpenGuide(){
+  document.getElementById("a2hsSteps").innerHTML = a2hsStepsHTML();
+  if (typeof a2hsDlg.showModal === "function") a2hsDlg.showModal();
+  else a2hsDlg.setAttribute("open", "");
+}
+
+/* 「立即添加」：能用原生安装框就用，否则弹教程 */
+document.getElementById("a2hsAdd").addEventListener("click", function(){
+  if (a2hsEvent) {
+    a2hsEvent.prompt();
+    a2hsEvent.userChoice.then(function(){ a2hsEvent = null; });
+  } else {
+    a2hsOpenGuide();
+  }
+});
+a2hsFab.addEventListener("click", a2hsOpenGuide);
+document.getElementById("a2hsOk").addEventListener("click", function(){ a2hsDlg.close(); });
+document.getElementById("a2hsClose").addEventListener("click", function(){
+  try { localStorage.setItem(A2HS_DISMISS, String(a2hsDismissCount() + 1)); } catch(err){}
+  a2hsRefresh();
+});
+
+/* 页面从 bfcache/历史记录恢复时（如遥控界面侧滑返回），重置所有浮层状态
+   否则会带着离开时的扫码页/弹窗状态回来，且摄像头流已失效 */
+function resetOverlays(){
+  closeScan();
+  ["nameDialog", "delDialog", "a2hsDialog"].forEach(function(id){
+    var d = document.getElementById(id);
+    if (d && d.open) { try { d.close(); } catch(err){} }
+  });
+  render();
+}
+window.addEventListener("pageshow", function(e){ resetOverlays(); });
+/* 页面进入 bfcache 前也清一次，保证缓存快照是干净状态 */
+window.addEventListener("pagehide", function(){ resetOverlays(); });
+
+/* 夸克云加速提示：仅夸克 UA 显示，点了「知道了」不再出现 */
+if (/quark/i.test(navigator.userAgent) && !localStorage.getItem("hg_quark_tip")) {
+  document.getElementById("quarkTip").hidden = false;
+}
+document.getElementById("quarkOk").addEventListener("click", function(){
+  try { localStorage.setItem("hg_quark_tip", "1"); } catch(err){}
+  document.getElementById("quarkTip").hidden = true;
+});
+
+render();
+a2hsRefresh();
+</script>
+</body>
+</html>
